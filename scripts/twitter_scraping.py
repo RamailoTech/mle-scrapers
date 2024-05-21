@@ -72,54 +72,30 @@ search_button = driver.find_element(
     '//*[@id="react-root"]/div/div/div[2]/main/div/div/div/div[2]/div/div[2]/div/div/div/div[1]/div/div/div/form/div[1]/div/div/div/div/div[2]/div/input',
 )
 search_button.send_keys(
-    "indian railways min_replies:10 since:2024-01-01 -filter:links -filter:replies",
+    "@RailMinIndia min_replies:10 since:2024-01-01 -filter:links -filter:replies",
     Keys.ENTER,
 )
 time.sleep(20)
 
 
-articles_list = []  # Store each article as a dictionary in this list
+articles_list = []  # Store each concatenated span text in this list
 
-max_spans = 8
-fieldnames = [f"span{i + 1}" for i in range(max_spans)]
-
-# Loop to collect articles
-for i in range(15):
-    print("Loop", i)
-    elements = driver.find_elements(By.CLASS_NAME, "css-175oi2r")
-    for element_index in range(len(elements)):
-        # Re-find element to prevent stale reference
-        element = driver.find_elements(By.CLASS_NAME, "css-175oi2r")[element_index]
-        articles = element.find_elements(
-            By.CSS_SELECTOR, "article[data-testid='tweet']"
-        )
-        for article_index in range(len(articles)):
-            # Re-find article to prevent stale reference
-            article = element.find_elements(
-                By.CSS_SELECTOR, "article[data-testid='tweet']"
-            )[article_index-1]
-            article_dict = {}
-            spans = article.find_elements(By.TAG_NAME, "span")
-            for span_index, span in enumerate(spans[:8]):
-                if span_index >= max_spans:
-                    continue
-                column_name = f"span{span_index + 1}"
-                article_dict[column_name] = (
-                    span.text.strip()
-                )  # strip to remove any leading/trailing spaces
-
-            if article_dict:
-                articles_list.append(article_dict)
-                # print(article_dict)
-
-    scroll_down(driver)  # Ensure your scroll_down function is properly defined
+# Find all articles on the page
+elements = driver.find_elements(By.CLASS_NAME, "css-175oi2r")
+for element in elements:
+    articles = element.find_elements(By.CSS_SELECTOR, "article[data-testid='tweet']")
+    for article in articles:
+        spans = article.find_elements(By.TAG_NAME, "span")
+        concatenated_spans = " ".join([span.text.strip() for span in spans])
+        print()
+        articles_list.append(concatenated_spans)
 
 # Write data to CSV after collecting all articles
-with open("output.csv", "w", newline="", encoding="utf-8") as file:
-    writer = csv.DictWriter(file, fieldnames=fieldnames)
-    writer.writeheader()
-    for article in articles_list:
-        writer.writerow(article)
+with open("output/test-twitter-output.csv", "w", newline="", encoding="utf-8") as file:
+    writer = csv.writer(file)
+    writer.writerow(["Index", "Text"])  # Adding header row
+    for index, article_text in enumerate(articles_list, 1):
+        writer.writerow([index, article_text])
 
 # Close the browser
 driver.quit()
@@ -255,7 +231,6 @@ driver.quit()
 # driver.quit()
 
 
-
-#validations 
-#1. 150 tweets
+# validations
+# 1. 150 tweets
 #
