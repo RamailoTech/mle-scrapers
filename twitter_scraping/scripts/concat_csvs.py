@@ -26,5 +26,5 @@ combined_df.index = combined_df.index + 1
 combined_df['index'] = combined_df.index  # Update the 'Index' column to reflect the new ordering
 
 # Save the DataFrame to a new CSV file
-output_path = 'output/combined_csv.csv'
+output_path = 'output/twitter_railway_data.csv'
 combined_df.to_csv(output_path, index=False)

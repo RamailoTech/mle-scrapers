@@ -17,17 +17,13 @@ password = os.getenv("TWITTER_PASSWORD")
 
 
 search_queries = {
-    "2014": "(indian railways OR @RailMinIndia OR #indianrailways) until:2014-12-31 since:2014-01-01 -filter:links -filter:replies",
-    "2015": "(indian railways OR @RailMinIndia OR #indianrailways) until:2015-12-31 since:2015-01-01 -filter:links -filter:replies",
-    "2016": "(indian railways OR @RailMinIndia OR #indianrailways) until:2016-12-31 since:2016-01-01 -filter:links -filter:replies",
-    "2017": "(indian railways OR @RailMinIndia OR #indianrailways) until:2017-12-31 since:2017-01-01 -filter:links -filter:replies",
-    "2018": "(indian railways OR @RailMinIndia OR #indianrailways) until:2018-12-31 since:2018-01-01 -filter:links -filter:replies",
-    "2019": "(indian railways OR @RailMinIndia OR #indianrailways) min_replies:20 min_retweets:20 until:2019-12-30 since:2019-01-01 -filter:links -filter:replies",
-    "2020": "(indian railways OR @RailMinIndia OR #indianrailways) min_replies:20 min_retweets:20 until:2020-12-30 since:2020-01-01 -filter:links -filter:replies",
-    "2021": "(indian railways OR @RailMinIndia OR #indianrailways) min_replies:20 min_retweets:20 until:2021-12-30 since:2021-01-01 -filter:links -filter:replies",
-    "2022": "(indian railways OR @RailMinIndia OR #indianrailways) min_replies:20 min_retweets:20 until:2022-12-30 since:2022-01-01 -filter:links -filter:replies",
-    "2023": "(indian railways OR @RailMinIndia OR #indianrailways) min_replies:20 min_retweets:20 until:2023-12-30 since:2023-01-01 -filter:links -filter:replies",
-    "2024": "(indian railways OR @RailMinIndia OR #indianrailways) min_replies:10 min_retweets:20 since:2024-01-01 -filter:links -filter:replies",
+    "2014": "(@RailMinIndia) until:2014-12-30 since:2014-01-01",
+    "2015": "(@RailMinIndia) until:2015-12-30 since:2015-01-01",
+    "2016": "(@RailMinIndia) until:2016-12-30 since:2016-01-01",
+    "2017": "(@RailMinIndia) until:2017-12-30 since:2017-01-01",
+    "2018": "(@RailMinIndia) until:2018-12-30 since:2018-01-01",
+    "2019": "(@RailMinIndia) until:2019-12-30 since:2019-01-01",
+    "2024": "(#indianrailways) since:2024-01-01",
 }
 
 
@@ -62,7 +58,7 @@ def get_tweet_for_year(year):
         '//*[@id="layers"]/div/div/div/div/div/div/div[2]/div[2]/div/div/div[2]/div[2]/div/div/div/button[2]',
     )
     next_button.click()
-    time.sleep(10)
+    time.sleep(20)
     password_field = driver.find_element(
         By.XPATH,
         '//*[@id="layers"]/div/div/div/div/div/div/div[2]/div[2]/div/div/div[2]/div[2]/div[1]/div/div/div[3]/div/label/div/div[2]/div[1]/input',
@@ -90,50 +86,41 @@ def get_tweet_for_year(year):
     )
     time.sleep(20)
 
-    articles_list = []  # Store each concatenated span text in this list
-    date_time = []  # store date for each posts
-
+    # tweet_set = set() # Store each concatenated span text in this list
+    tweet_dict = {}
     # 50 scrolls
-    for _ in range(50):
-        elements = driver.find_elements(By.CSS_SELECTOR, "div[data-testid='User-Name']")
-        for element in elements:
-            if len(date_time) >= 200:  # Check if already collected 200 datetimes
-                break
-            a_tags = element.find_elements(By.CSS_SELECTOR, "a[href*='/status/']")
-            for a_tag in a_tags:
-                time_elements = a_tag.find_elements(By.TAG_NAME, "time")
-
-                for time_element in time_elements:
-                    datetime_value = time_element.get_attribute("datetime")
-                    visible_date = time_element.text
-                    date_time.append(visible_date)
-                    if (
-                        len(date_time) >= 200
-                    ):  # Check if already collected 200 datetimes
-                        break
-
+    for i in range(30):
+        print("scroll count", i)
+        print("tweet counts:", len(tweet_dict))
         elements = driver.find_elements(By.CSS_SELECTOR, "div[data-testid='tweetText']")
         for element in elements:
-            if len(articles_list) >= 200:  # Check if already collected 200 datetimes
-                break
-            spans = element.find_elements(By.TAG_NAME, "span")
-            concatenated_spans = " ".join([span.text.strip() for span in spans])
-            articles_list.append(concatenated_spans)
-            if len(articles_list) >= 200:  # Check if already collected 200 datetimes
+            # Get the value of the 'id' attribute
+            element_id = element.get_attribute("id")
+            # print(element_id)
+            # Get the text content of the element
+            element_text = element.text
+            # tweet_set.add(element_text)
+            tweet_dict[element_id] = element_text
+            if len(tweet_dict) > 200:
                 break
         scroll_down(driver)
 
     # Write data to CSV after collecting all tweets
-    with open(
-        f"output/year_wise_data/{year}_data.csv", "w", newline="", encoding="utf-8"
-    ) as file:
+    # Set the directory path based on the year
+    directory_path = f"output/year_wise_data_{year}"
+
+    # Check if the directory exists, and if not, create it
+    if not os.path.exists(directory_path):
+        os.makedirs(directory_path)
+
+    # Path to the CSV file
+    file_path = f"{directory_path}/{year}_data.csv"
+    with open(file_path, "w", newline="", encoding="utf-8") as file:
         writer = csv.writer(file)
-        writer.writerow(["index", "text", "date", "year"])  # Adding header row
-        for index, (tweet_text, time_text) in enumerate(
-            zip(articles_list, date_time), start=1
-        ):
-            writer.writerow([index, tweet_text, time_text, year])
-    # Close the browser
+        writer.writerow(["index", "text", "year"])  # Corrected header row
+        for index, (tweet_id, tweet_text) in enumerate(tweet_dict.items(), start=1):
+            writer.writerow([index, tweet_text, year])
+
     driver.quit()
 
 
