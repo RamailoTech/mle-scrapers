@@ -49,8 +49,7 @@ This repository contains scripts and tools to scrape Twitter data related to Ind
 
 Sample prompt:
 
-```
-You are a multi-class classification model. You will be given a complaint about services in the railways. Classify the given compaint into the following four categories:
+```You are a multi-class classification model. You will be given a complaint about services in the railways. Classify the given compaint into the             following four categories:
         delay: The complaint is about delays and punctuality issues in the train schedules.
         crowding: The complaint is about overcrowding in the trains. 
         expensive: The complaint is about the railways having become expensive and unaffordable. 
@@ -95,8 +94,7 @@ You are a multi-class classification model. You will be given a complaint about 
             "derail":0,
             "hygiene":0,
             "management":0
-        }
-        ```
+        }```
 
 ### Installation
 
