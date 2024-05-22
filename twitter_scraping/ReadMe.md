@@ -55,7 +55,8 @@ Sample prompt:
         expensive: The complaint is about the railways having become expensive and unaffordable. 
         derail: The complaint is about trains derailing. 
         hygiene: The complaint concerns the cleanliness and sanitary conditions of the trains.
-        management: The complaint addresses issues related to the overall administration and organization of the train services. Also inculdes reduction in the number of sleeper and 3AC coaches, which disproportionately affects poor and middle-class passengers.
+        management: The complaint addresses issues related to the overall administration and organization of the train services. Also includes     
+        reduction in the number of sleeper and 3AC coaches, which disproportionately affects poor and middle-class passengers.
  
         Answer 1 if it falls into the given category 0 if not. Answer only 1 or 0, nothing else. Also, check the synonyms of the given categories. Provide the output in JSON format.
                 Note: The given complaint might fall in all/some/any category.
@@ -84,7 +85,7 @@ Sample prompt:
         }
 
         Example 2:
-        Big punctuality fraud is going on in Indian  Railways . This practice of bogus punctuality data must be stopped. Use technology and stop manipulation. Indian  #Railways  runs a monopoly and has no regulator. Accidents occur. Premium fares, dynamic pricing. Anything for poor?
+        Big punctuality fraud is going on in Indian  Railways. This practice of bogus punctuality data must be stopped. Use technology and stop manipulation. Indian  #Railways  runs a monopoly and has no regulator. Accidents occur. Premium fares, dynamic pricing. Anything for poor?
 
         Output:
         {
@@ -96,6 +97,7 @@ Sample prompt:
             "management":0
         }```
 
+<br>
 ### Installation
 
 1. Clone the repository:
