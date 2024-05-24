@@ -3,6 +3,7 @@ import csv
 import os
 from dotenv import load_dotenv
 import json
+import pandas as pd
 
 load_dotenv()
 openai.api_key = os.getenv("API_KEY")
@@ -16,7 +17,7 @@ def get_system_prompt():
         expensive: The complaint is about the railways having become expensive and unaffordable. 
         derail: The complaint is about trains derailing. 
         hygiene: The complaint concerns the cleanliness and sanitary conditions of the trains.
-        management: The complaint addresses issues related to the overall administration and organization of the train services. Also inculdes reduction in the number of sleeper and 3AC coaches, which disproportionately affects poor and middle-class passengers.
+        management: The complaint addresses issues related to the overall administration and organization of the train services. Also inculdes reduction in the number of sleeper and 3AC coaches, which disproportionately affects poor and middle-class passengers. Additionally, there are concerns about certain systems and facilities not working properly, further exacerbating the inconvenience for passengers.
  
         Answer 1 if it falls into the given category 0 if not. Answer only 1 or 0, nothing else. Also, check the synonyms of the given categories. Provide the output in JSON format.
                 Note: The given complaint might fall in all/some/any category.
@@ -87,31 +88,42 @@ def check_complaint(extracted_text, model_name="gpt-3.5-turbo"):
 def process_csv(file_path):
     results = []
     with open(file_path, mode="r", newline="", encoding="utf-8") as file:
-        reader = csv.DictReader(file)
-        for row in reader:
-            # Get the output from check_complaint function
-            complaint_results = check_complaint(row["text"])
-
-            # Add the results of check_complaint directly into the row dictionary
-            row.update(
-                {
-                    "delay": complaint_results["delay"],
-                    "crowding": complaint_results["crowding"],
-                    "expensive": complaint_results["expensive"],
-                    "derail": complaint_results["derail"],
-                    "hygiene": complaint_results["hygiene"],
-                    "management": complaint_results["management"],
+        # reader = csv.DictReader(file)
+        df = pd.read_excel(file_path)
+            # Process each row based on 'is_complaint_true'
+        for index, row in df.iterrows():
+            if row['is_complaint_true'] == 1:
+                complaint_results = check_complaint(row['text'])
+                # Add the results of check_complaint directly into the row dictionary
+                row.update(
+                    {
+                        "delay": complaint_results["delay"],
+                        "crowding": complaint_results["crowding"],
+                        "expensive": complaint_results["expensive"],
+                        "derail": complaint_results["derail"],
+                        "hygiene": complaint_results["hygiene"],
+                        "management": complaint_results["management"],
+                    }
+                ) 
+            else:
+                complaint_results = {
+                    "delay": 0, "crowding": 0, "expensive": 0,
+                    "derail": 0, "hygiene": 0, "management": 0
                 }
-            )
-            results.append(row)
+            # results.append(row)
+            # Update the row with the results
+            for key in complaint_results:
+                df.at[index, key] = complaint_results[key]
 
-    with open(file_path, mode="w", newline="", encoding="utf-8") as file:
-        # Ensure all fields are written to the CSV, including new fields
-        fieldnames = results[0].keys() if results else []
-        writer = csv.DictWriter(file, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(results)
+    output_path = file_path.replace('.xlsx', '_processed.xlsx')
+    df.to_excel(output_path, index=False, engine='openpyxl')
+    # with open(file_path, mode="w", newline="", encoding="utf-8") as file:
+    #     # Ensure all fields are written to the CSV, including new fields
+    #     fieldnames = results[0].keys() if results else []
+    #     writer = csv.DictWriter(file, fieldnames=fieldnames)
+    #     writer.writeheader()
+    #     writer.writerows(results)
 
 
-file_path = "output/indian_railways_complaints.csv"
+file_path = "output/final_data/final_twitter_railway_data_cleaned_complaints.xlsx"
 process_csv(file_path)
