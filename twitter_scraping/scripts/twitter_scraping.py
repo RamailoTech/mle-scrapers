@@ -16,14 +16,12 @@ username = os.getenv("TWITTER_USERNAME")
 password = os.getenv("TWITTER_PASSWORD")
 
 
+
+
 search_queries = {
-    "2014": "(@RailMinIndia) until:2014-12-30 since:2014-01-01",
-    "2015": "(@RailMinIndia) until:2015-12-30 since:2015-01-01",
-    "2016": "(@RailMinIndia) until:2016-12-30 since:2016-01-01",
-    "2017": "(@RailMinIndia) until:2017-12-30 since:2017-01-01",
-    "2018": "(@RailMinIndia) until:2018-12-30 since:2018-01-01",
-    "2019": "(@RailMinIndia) until:2019-12-30 since:2019-01-01",
-    "2024": "(#indianrailways) since:2024-01-01",
+    "2024_#indianrailways": "(#indianrailways) since:2024-01-01 -filter:links -filter:replies",
+    "2024_indianrail": "(indianrailways) since:2024-01-01 -filter:links -filter:replies",
+    "2024_railmin": "(@RailMinIndia) since:2024-01-01 -filter:links -filter:replies",
 }
 
 
@@ -58,7 +56,7 @@ def get_tweet_for_year(year):
         '//*[@id="layers"]/div/div/div/div/div/div/div[2]/div[2]/div/div/div[2]/div[2]/div/div/div/button[2]',
     )
     next_button.click()
-    time.sleep(20)
+    time.sleep(10)
     password_field = driver.find_element(
         By.XPATH,
         '//*[@id="layers"]/div/div/div/div/div/div/div[2]/div[2]/div/div/div[2]/div[2]/div[1]/div/div/div[3]/div/label/div/div[2]/div[1]/input',
@@ -73,7 +71,7 @@ def get_tweet_for_year(year):
     # Maximize the window
     driver.maximize_window()
 
-    time.sleep(15)
+    time.sleep(10)
     # after login
 
     search_button = driver.find_element(
@@ -84,12 +82,12 @@ def get_tweet_for_year(year):
         search_query,
         Keys.ENTER,
     )
-    time.sleep(20)
+    time.sleep(10)
 
     # tweet_set = set() # Store each concatenated span text in this list
     tweet_dict = {}
     # 50 scrolls
-    for i in range(30):
+    for i in range(17):
         print("scroll count", i)
         print("tweet counts:", len(tweet_dict))
         elements = driver.find_elements(By.CSS_SELECTOR, "div[data-testid='tweetText']")
@@ -107,7 +105,7 @@ def get_tweet_for_year(year):
 
     # Write data to CSV after collecting all tweets
     # Set the directory path based on the year
-    directory_path = f"output/year_wise_data_{year}"
+    directory_path = f"output/year_wise_data_2024"
 
     # Check if the directory exists, and if not, create it
     if not os.path.exists(directory_path):
@@ -122,6 +120,8 @@ def get_tweet_for_year(year):
             writer.writerow([index, tweet_text, year])
 
     driver.quit()
+
+
 
 
 def main():
