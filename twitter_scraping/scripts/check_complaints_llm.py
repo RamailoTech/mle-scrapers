@@ -117,13 +117,13 @@ def process_csv(file_path):
 
     output_path = file_path.replace('.xlsx', '_processed.xlsx')
     df.to_excel(output_path, index=False, engine='openpyxl')
-    # with open(file_path, mode="w", newline="", encoding="utf-8") as file:
-    #     # Ensure all fields are written to the CSV, including new fields
-    #     fieldnames = results[0].keys() if results else []
-    #     writer = csv.DictWriter(file, fieldnames=fieldnames)
-    #     writer.writeheader()
-    #     writer.writerows(results)
 
 
-file_path = "output/final_data/final_twitter_railway_data_cleaned_complaints.xlsx"
-process_csv(file_path)
+def main():
+    file_path = "output/final_data/final_twitter_railway_data_cleaned_complaints.xlsx"
+    process_csv(file_path)
+
+
+if __name__ == "__main__":
+    main()
+
